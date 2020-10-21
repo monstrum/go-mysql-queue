@@ -28,7 +28,7 @@ func (l *Listener) Context() context.Context {
 	return l.ctx
 }
 
-func (l *Listener) Start(handle func([]Event) bool, num int) {
+func (l *Listener) Start(handle func([]MessengerMessage) bool, num int) {
 	started := make(chan bool)
 
 	if num < 1 {
@@ -66,7 +66,7 @@ func (l *Listener) Start(handle func([]Event) bool, num int) {
 				go func() {
 					var resultValue bool
 					result := make(chan bool)
-					events := []Event{}
+					events := []MessengerMessage{}
 
 					// Depending on how many we want, that's what
 					// we will pop off the queue
@@ -80,7 +80,7 @@ func (l *Listener) Start(handle func([]Event) bool, num int) {
 					}
 
 					// Go off and handle those events
-					go func(events []Event, handle func([]Event) bool, result chan bool) {
+					go func(events []MessengerMessage, handle func([]MessengerMessage) bool, result chan bool) {
 						result <- handle(events)
 					}(events, handle, result)
 

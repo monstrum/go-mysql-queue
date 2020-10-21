@@ -38,7 +38,7 @@ func setup() {
 }
 
 func teardown() {
-	connection.Database().DropTable(&Event{})
+	connection.Database().DropTable(&MessengerMessage{})
 
 	connection.Close()
 }

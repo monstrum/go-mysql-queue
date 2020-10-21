@@ -7,13 +7,13 @@ import (
 )
 
 func TestEventPayload(t *testing.T) {
-	event := Event{
-		Payload: `{"example":"json", "payload":"4tests"}`,
+	message := MessengerMessage{
+		Body: `{"example":"json", "payload":"4tests"}`,
 	}
 
-	assert.NotEmpty(t, event.Payload)
+	assert.NotEmpty(t, message.Body)
 
-	payload, err := event.GetPayload()
+	payload, err := message.GetPayload()
 
 	if assert.Nil(t, err) {
 		assert.Equal(t, payload["example"], "json")

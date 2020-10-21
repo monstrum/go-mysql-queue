@@ -1,26 +1,22 @@
 package msq
 
 import (
-	"github.com/jinzhu/gorm"
-	"github.com/twinj/uuid"
+	"time"
 )
 
-type Event struct {
-	gorm.Model
-	UID       string `gorm:"type:varchar(255);index:uid"`
-	Namespace string `gorm:"type:varchar(255);index:namespace;not null"`
-	Payload   string `gorm:"type:text"`
-	Retries   int    `gorm:"size:1;index:retries;default:0"`
+type MessengerMessage struct {
+	ID        	uint `gorm:"primary_key"`
+	CreatedAt 	time.Time
+	AvailableAt time.Time
+	DeliveredAt time.Time
+	QueueName 	string `gorm:"type:varchar(120);index:queue_name;not null"`
+	Body      	string `gorm:"type:text;body"`
+	Retries     int `gorm:"type:int;retries"`
 }
 
-func (e *Event) BeforeCreate(scope *gorm.Scope) error {
-	scope.SetColumn("UID", uuid.NewV4().String())
-	return nil
-}
-
-func (e *Event) GetPayload() (Payload, error) {
+func (e *MessengerMessage) GetPayload() (Payload, error) {
 	p := Payload{}
-	returnPayload, err := p.UnMarshal([]byte(e.Payload))
+	returnPayload, err := p.UnMarshal([]byte(e.Body))
 
 	if err != nil {
 		return Payload{}, err

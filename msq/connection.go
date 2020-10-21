@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )
@@ -76,9 +77,9 @@ func (c *Connection) SetupDatabase() error {
 		dbScope = dbScope.Set("gorm:table_options", tableOptions)
 	}
 
-	dbScope = dbScope.AutoMigrate(&Event{})
+	dbScope = dbScope.AutoMigrate(&MessengerMessage{})
 
-	hasTable := dbScope.HasTable(&Event{})
+	hasTable := dbScope.HasTable(&MessengerMessage{})
 
 	if !hasTable {
 		return errors.New("Events table was not created")
@@ -90,6 +91,10 @@ func (c *Connection) SetupDatabase() error {
 func (c *Connection) getType() string {
 	if c.Config.Type == "sqlite" {
 		return "sqlite3"
+	}
+
+	if c.Config.Type == "postgres" {
+		return "postgres"
 	}
 
 	return c.Config.Type
@@ -118,6 +123,14 @@ func (c *Connection) getConnectionString() string {
 		)
 	} else if dbType == "sqlite3" {
 		return c.Config.Database
+	} else if dbType == "postgres" {
+		return fmt.Sprintf(
+			"postgres://%s:%s@%s/%s?sslmode=disable",
+			c.Config.Username,
+			c.Config.Password,
+			hostname,
+			c.Config.Database,
+		)
 	}
 
 	panic("Invalid database type provided, must be 'myqsl' or 'sqlite3'/'sqlite'")

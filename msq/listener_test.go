@@ -16,7 +16,7 @@ func TestStartStop(t *testing.T) {
 
 	queue.Configure(queueConfig)
 
-	queuedEvent, err := queue.Push(payload)
+	queuedmessage, err := queue.Push(payload)
 
 	if assert.Nil(t, err) {
 		listener := &Listener{
@@ -29,9 +29,9 @@ func TestStartStop(t *testing.T) {
 
 		ctx := listener.Context()
 
-		listener.Start(func(events []Event) bool {
-			if len(events) > 0 {
-				assert.Equal(t, queuedEvent.UID, events[0].UID)
+		listener.Start(func(messages []MessengerMessage) bool {
+			if len(messages) > 0 {
+				assert.Equal(t, queuedmessage.ID, messages[0].ID)
 			}
 
 			return true
@@ -60,7 +60,7 @@ func TestHandleFail(t *testing.T) {
 
 	queue.Configure(queueConfig)
 
-	queuedEvent, err := queue.Push(payload)
+	queuedmessage, err := queue.Push(payload)
 
 	if assert.Nil(t, err) {
 		listener := &Listener{
@@ -73,9 +73,9 @@ func TestHandleFail(t *testing.T) {
 
 		ctx := listener.Context()
 
-		listener.Start(func(events []Event) bool {
-			if len(events) > 0 {
-				assert.Equal(t, queuedEvent.UID, events[0].UID)
+		listener.Start(func(messages []MessengerMessage) bool {
+			if len(messages) > 0 {
+				assert.Equal(t, queuedmessage.ID, messages[0].ID)
 			}
 			return false
 		}, 1)
@@ -84,11 +84,11 @@ func TestHandleFail(t *testing.T) {
 			assert.True(t, listener.Running, "The listener should be started")
 			time.Sleep(2 * listenerConfig.Interval)
 
-			failedEvents, err := queue.Failed()
+			failedmessages, err := queue.Failed()
 
-			if assert.Nil(t, err, "We should get a list of failed events back") {
-				assert.Equal(t, queuedEvent.UID, failedEvents[0].UID)
-				queue.Done(failedEvents[0])
+			if assert.Nil(t, err, "We should get a list of failed messages back") {
+				assert.Equal(t, queuedmessage.ID, failedmessages[0].ID)
+				queue.Done(failedmessages[0])
 			}
 
 			listener.Stop()
@@ -110,7 +110,7 @@ func TestHandleTimeout(t *testing.T) {
 
 	queue.Configure(queueConfig)
 
-	queuedEvent, err := queue.Push(payload)
+	queuedmessage, err := queue.Push(payload)
 
 	if assert.Nil(t, err) {
 		listener := &Listener{
@@ -123,7 +123,7 @@ func TestHandleTimeout(t *testing.T) {
 
 		ctx := listener.Context()
 
-		listener.Start(func(events []Event) bool {
+		listener.Start(func(messages []MessengerMessage) bool {
 			time.Sleep(2 * listenerConfig.Timeout)
 			return false
 		}, 1)
@@ -132,11 +132,11 @@ func TestHandleTimeout(t *testing.T) {
 			assert.True(t, listener.Running, "The listener should be started")
 			time.Sleep(2 * listenerConfig.Interval)
 
-			failedEvents, err := queue.Failed()
+			failedmessages, err := queue.Failed()
 
-			if assert.Nil(t, err, "We should get a list of failed events back") {
-				assert.Equal(t, queuedEvent.UID, failedEvents[0].UID)
-				queue.Done(failedEvents[0])
+			if assert.Nil(t, err, "We should get a list of failed messages back") {
+				assert.Equal(t, queuedmessage.ID, failedmessages[0].ID)
+				queue.Done(failedmessages[0])
 			}
 
 			listener.Stop()

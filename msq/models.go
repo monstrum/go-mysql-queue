@@ -11,12 +11,24 @@ type MessengerMessage struct {
 	DeliveredAt time.Time
 	QueueName 	string `gorm:"type:varchar(120);index:queue_name;not null"`
 	Body      	string `gorm:"type:text;body"`
+	Headers     string `gorm:"type:text;headers"`
 	Retries     int `gorm:"type:int;retries"`
 }
 
 func (e *MessengerMessage) GetPayload() (Payload, error) {
 	p := Payload{}
 	returnPayload, err := p.UnMarshal([]byte(e.Body))
+
+	if err != nil {
+		return Payload{}, err
+	}
+
+	return *returnPayload, nil
+}
+
+func (e *MessengerMessage) GetHeaders() (Payload, error) {
+	p := Payload{}
+	returnPayload, err := p.UnMarshal([]byte(e.Headers))
 
 	if err != nil {
 		return Payload{}, err

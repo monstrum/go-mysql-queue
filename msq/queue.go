@@ -1,6 +1,7 @@
 package msq
 
 import (
+	"encoding/json"
 	"time"
 )
 
@@ -69,9 +70,14 @@ func (q *Queue) Failed() ([]*MessengerMessage, error) {
 	return messages, nil
 }
 
-func (q *Queue) Push(payload Payload) (*MessengerMessage, error) {
+func (q *Queue) Push(payload Payload, headers Headers) (*MessengerMessage, error) {
 	encodedPayload, err := payload.Marshal()
 
+	if err != nil {
+		return &MessengerMessage{}, err
+	}
+
+	encodedHeaders, err := json.Marshal(headers)
 	if err != nil {
 		return &MessengerMessage{}, err
 	}
@@ -79,6 +85,7 @@ func (q *Queue) Push(payload Payload) (*MessengerMessage, error) {
 	event := &MessengerMessage{
 		QueueName: q.Config.Name,
 		Body:   string(encodedPayload),
+		Headers:   string(encodedHeaders),
 	}
 
 	err = q.Connection.Database().Create(event).Error

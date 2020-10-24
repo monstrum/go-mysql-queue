@@ -15,6 +15,12 @@ type MessengerMessage struct {
 	Retries     int `gorm:"type:int;retries"`
 }
 
+// Symfony headers required
+// type, the message class qualified name
+// X-Message-Stamp-Symfony\\Component\\Messenger\\Stamp\\BusNameStamp, [{\"busName\":\"messenger.bus.default\"}]
+// Content-Type, application\/json
+type Headers map[string]interface{}
+
 func (e *MessengerMessage) GetPayload() (Payload, error) {
 	p := Payload{}
 	returnPayload, err := p.UnMarshal([]byte(e.Body))

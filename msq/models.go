@@ -21,6 +21,14 @@ type MessengerMessage struct {
 // Content-Type, application\/json
 type Headers map[string]interface{}
 
+func CreateHeader(className string) Headers {
+	return Headers{
+		"type": className,
+		"Content-Type": "application/json",
+		"X-Message-Stamp-Symfony\\Component\\Messenger\\Stamp\\BusNameStamp": "[{\"busName\": \"messenger.bus.default\"}]",
+	}
+}
+
 func (e *MessengerMessage) GetPayload() (Payload, error) {
 	p := Payload{}
 	returnPayload, err := p.UnMarshal([]byte(e.Body))

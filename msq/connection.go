@@ -133,7 +133,10 @@ func (c *Connection) getConnectionString() string {
 		)
 	}
 
-	panic("Invalid database type provided, must be 'myqsl' or 'sqlite3'/'sqlite'")
+	panic(
+		fmt.Sprintf(
+			"Invalid database type \"%s\" provided, must be 'postgres' or 'myqsl' or 'sqlite3'/'sqlite'",
+			dbType))
 }
 
 func Connect(config ConnectionConfig) (*Queue, error) {
